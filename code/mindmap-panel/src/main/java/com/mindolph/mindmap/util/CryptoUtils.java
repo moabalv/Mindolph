@@ -93,6 +93,6 @@ public final class CryptoUtils {
     }
 
     public static String base64encode(byte[] data) {
-        return new String(Base64.getEncoder().encode(data));
+        return new String(Base64.getEncoder().encode(data), StandardCharsets.UTF_8);
     }
 }
