@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -220,7 +221,7 @@ public class TopicNode extends Topic<TopicNode> implements ItemData {
      */
     public List<TopicNode> fromText(String text) {
         List<TopicNode> result = null;
-        List<String> lines = IOUtils.readLines(new ByteArrayInputStream(text.getBytes()), "UTF-8");
+        List<String> lines = IOUtils.readLines(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         if (CollectionUtils.isNotEmpty(lines)) {
             result = new ArrayList<>();
             TopicNode parentNode = this;
