@@ -3,6 +3,7 @@ package com.mindolph.base.constant;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public interface FontConstants {
     String KEY_TXT_EDITOR = "txt.editorFont";
     String KEY_CSV_EDITOR = "csv.editorFont";
 
-    Map<String, Font> DEFAULT_FONTS = new HashMap<>() {{
+    static final Map<String, Font> DEFAULT_FONTS = Collections.unmodifiableMap(new HashMap<>() {{
         put(KEY_MMD_TOPIC_FONT, Font.font("serif", FontWeight.BOLD, 16));
         put(KEY_MMD_NOTE_FONT, Font.font("serif", FontWeight.NORMAL, 15));
         put(KEY_MMD_NOTE_FONT_MONO, Font.font("monospaced", FontWeight.NORMAL, 15));
@@ -31,6 +32,6 @@ public interface FontConstants {
         put(KEY_MD_EDITOR_MONO, Font.font("monospaced", FontWeight.NORMAL, 15));
         put(KEY_TXT_EDITOR, Font.font("monospaced", FontWeight.NORMAL, 15));
         put(KEY_CSV_EDITOR, Font.font("serif", FontWeight.NORMAL, 15));
-    }};
+    }});
 
 }
