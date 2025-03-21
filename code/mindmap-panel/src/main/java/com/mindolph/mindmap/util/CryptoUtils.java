@@ -53,7 +53,7 @@ public final class CryptoUtils {
                 throw new IllegalStateException(
                         "Data can't be encrypted! Check encryption provider and settings!");
             }
-            return new String(Base64.getEncoder().encode(encodedData));
+            return new String(Base64.getEncoder().encode(encodedData), StandardCharsets.UTF_8);
         } catch (NoSuchPaddingException | InvalidKeyException | NoSuchAlgorithmException | IllegalBlockSizeException |
                  BadPaddingException | IOException ex) {
             log.error("Failed to encrypt text", ex);
