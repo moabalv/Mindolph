@@ -190,7 +190,6 @@ public abstract class BaseCollapsableElement extends BaseElement {
 
         Point2D sourcePoint = sourcePoint(borderType, source, isLeftDirection);
         Point2D destPoint = destinationPoint(theme.getBorderType(), destination, isLeftDirection);
-        double endX = destPoint.getX() + (isLeftDirection ? -destination.getWidth() : destination.getWidth());
 
         if (theme.getConnectorStyle() == ConnectorStyle.POLYLINE) {
             double dy = Math.abs(destPoint.getY() - centerY(source));
