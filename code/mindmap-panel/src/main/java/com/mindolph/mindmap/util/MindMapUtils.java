@@ -120,7 +120,7 @@ public final class MindMapUtils {
                 ExtraFile efile = (ExtraFile) extra;
                 String line = efile.getAsURI().getParameters().getProperty("line", null);
                 if (line != null && !line.equals("0")) {
-                    builder.append("Open File%n%s%nline:%s".formatted(efile.getAsString(), line));
+                    builder.append("Open File\n%s\nline:%s".formatted(efile.getAsString(), line));
                 }
                 else {
                     builder.append("Open File\n").append(efile.getAsString());
