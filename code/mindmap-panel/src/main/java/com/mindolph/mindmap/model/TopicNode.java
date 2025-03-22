@@ -114,14 +114,13 @@ public class TopicNode extends Topic<TopicNode> implements ItemData {
 
     public TopicNode findSameSidePrevSibling() {
         TopicNode sibling = this;
-        while (sibling != null) {
-            sibling = sibling.prevSibling();
-            if (sibling == null || sibling.isSameDirection(this)) {
+        while ((sibling = sibling.prevSibling()) != null) {
+            if (sibling.isSameDirection(this)) {
                 return sibling;
             }
         }
         return null;
-    }
+    }    
 
     public TopicNode findSameSideNextSibling() {
         TopicNode sibling = this;
