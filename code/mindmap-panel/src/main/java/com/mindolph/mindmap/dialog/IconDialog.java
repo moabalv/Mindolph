@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class IconDialog extends BaseDialogController<String> implements EventHandler<ActionEvent> {
 
-    private final int MAX_COL_SIZE = 8;
+    private static final int MAX_COL_SIZE = 8;
 
     @FXML
     private TableView<List<String>> tableView;

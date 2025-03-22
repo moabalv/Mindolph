@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author mindolph.com@gmail.com
  */
 public class TopicInfoBuilder {
-    private final String MSG_SEPARATOR = "    ";
+    private static final String MSG_SEPARATOR = "    ";
 
     private final StringBuilder msgBuf = new StringBuilder();
 
