@@ -20,7 +20,7 @@ import java.lang.reflect.Modifier;
 public class MindMapConfigLegacy {
     private static final Logger log = LoggerFactory.getLogger(MindMapConfigLegacy.class);
 
-    private final String CFG_PREFIX = "mmd";
+    private static final String CFG_PREFIX = "mmd";
 
     private int textMargins = 10;
     private int otherLevelVerticalInset = 16;
