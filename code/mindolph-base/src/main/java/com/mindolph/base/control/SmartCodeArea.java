@@ -127,7 +127,7 @@ public class SmartCodeArea extends ExtCodeArea implements Anchorable {
         ContextMenu menu = super.createContextMenu();
         List<MenuItem> pluginMenuItems = new ArrayList<>();
         withPlugins(new Consumer<>() {
-            private int originPos; // be used to select generated text after
+            private int originPos; //be used to select generated text after
 
             @Override
             public void accept(Plugin plugin) {
@@ -148,18 +148,21 @@ public class SmartCodeArea extends ExtCodeArea implements Anchorable {
                     });
                     summaryMenuItem.setOnAction(event -> {
                         SmartCodeArea.this.onCompleted();
-                        generator.showSummarizePanel(SmartCodeArea.super.getSelectedText(), SmartCodeArea.this);
+                        generator.showSummarizePanel(SmartCodeArea.super.getSelectedText());
+                        IndexRange selection = SmartCodeArea.super.getSelection();
+                        SmartCodeArea.super.moveTo(selection.getEnd());
                     });
 
                     generator.setOnPanelShowing(stackPane -> {
                         SmartCodeArea.this.relocatedPanelToCaret(stackPane);
                     });
                     generator.setBeforeGenerate(unused -> {
-                        SmartCodeArea.this.onGenerating();
+                        SmartCodeArea.this.onCompleted();
                         this.originPos = SmartCodeArea.this.getSelection().getStart();
                     });
-                    generator.setOnStreaming((streamOutput, pane) -> {
+                    generator.setOnStreaming(streamOutput -> {
                         Platform.runLater(() -> {
+                            SmartCodeArea.this.onCompleted();
                             if (!streamOutput.streamToken().isStop()) {
                                 if (StringUtils.isNotBlank(SmartCodeArea.this.getSelectedText())) {
                                     SmartCodeArea.this.replaceSelection(streamOutput.streamToken().text());
@@ -168,11 +171,11 @@ public class SmartCodeArea extends ExtCodeArea implements Anchorable {
                                     SmartCodeArea.this.insertText(streamOutput.streamToken().text());
                                 }
                                 if (log.isTraceEnabled()) log.trace(String.valueOf(streamOutput.streamToken()));
-                                SmartCodeArea.this.relocatedPanelToCaret(pane);
                             }
                             else {
-                                if (log.isTraceEnabled()) log.trace("select generated text from: %s".formatted(originPos));
+                                if (log.isTraceEnabled()) log.trace("select start index: %s".formatted(originPos));
                                 SmartCodeArea.super.selectRange(originPos, SmartCodeArea.this.getCaretPosition());
+                                SmartCodeArea.this.onGenerating();
                             }
                         });
                     });
@@ -211,13 +214,14 @@ public class SmartCodeArea extends ExtCodeArea implements Anchorable {
     // @since 1.7
     private void onCompleted() {
         super.setEditable(true);
-        super.setDisable(false);
+        super.setDisabled(false);
         super.requestFocus();
     }
 
     // @since 1.7
     private void onGenerating() {
-        super.setDisable(true);
+        super.setEditable(false);
+        super.setDisabled(true);
     }
 
     // @since 1.7
@@ -226,9 +230,9 @@ public class SmartCodeArea extends ExtCodeArea implements Anchorable {
             Bounds hoverBounds = BoundsUtils.fromPoint(getPanelTargetPoint(), inputPanel.getWidth(), inputPanel.getHeight());
             Dimension2D targetDimension = new Dimension2D(super.getCaretInLocal().getWidth(), super.getLineHeight());
             if (log.isTraceEnabled())
-                log.trace("bound in parent:%s".formatted(BoundsUtils.boundsInString(this.getBoundsInParent())));
-            if (log.isTraceEnabled()) log.trace("hover bounds:%s".formatted(BoundsUtils.boundsInString(hoverBounds)));
-            if (log.isTraceEnabled()) log.trace("target dimension: %s".formatted(DimensionUtils.dimensionInStr(targetDimension)));
+                log.trace("bound in parent:" + BoundsUtils.boundsInString(this.getBoundsInParent()));
+            if (log.isTraceEnabled()) log.trace("hover bounds:" + BoundsUtils.boundsInString(hoverBounds));
+            if (log.isTraceEnabled()) log.trace("target dimension: " + DimensionUtils.dimensionInStr(targetDimension));
             Point2D p2 = LayoutUtils.bestLocation(parentPane.getBoundsInParent(), hoverBounds, targetDimension,
                     new Dimension2D(5, 5));
             inputPanel.relocate(p2.getX(), p2.getY());

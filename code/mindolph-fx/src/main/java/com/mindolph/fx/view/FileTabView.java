@@ -73,25 +73,24 @@ public class FileTabView extends BaseView {
                 TabManager.getIns().activeTab(selectingTab);
                 BaseEditor editor = (BaseEditor) tabEditorMap.get(selectingTab);
                 Object tabUserData = selectingTab.getUserData();
-                if (tabUserData instanceof NodeData tud) {
-                    if (editor == null) {
+                if (editor == null) {
+                    if (tabUserData != null) {
                         NodeData fileData = (NodeData) tabUserData;
                         this.loadEditorToTab(fileData, selectingTab);
                     }
-                    else {
-                        if (editor.isNeedRefresh()) {
-                            editor.applyStyles();
-                            editor.refresh();
-                            editor.setNeedRefresh(false);
-                        }
-                        editor.requestFocus();
-                        editor.locate(tud.getAnchor()); // locating for 'find in files'
-                        tud.setAnchor(null); // clear the anchor by 'find in files'
-                        this.updateMenuState(editor);
-                        editor.outline();
-                    }
-                    EventBus.getIns().notifyFileActivated(new FileActivatedEvent((NodeData) oldData, tud));
                 }
+                else {
+                    if (editor.isNeedRefresh()) {
+                        editor.applyStyles();
+                        editor.refresh();
+                        editor.setNeedRefresh(false);
+                    }
+                    editor.requestFocus();
+                    editor.locate(((NodeData) tabUserData).getAnchor()); // locate for 'find in files'
+                    this.updateMenuState(editor);
+                    editor.outline();
+                }
+                EventBus.getIns().notifyFileActivated(new FileActivatedEvent((NodeData) oldData, (NodeData) tabUserData));
             }
             else {
                 this.updateMenuState(null);
@@ -216,7 +215,6 @@ public class FileTabView extends BaseView {
         EventBus.getIns().subscribeFileLoaded(fileData, nodeData -> {
             Platform.runLater(() -> {
                 editor.locate(fileData.getAnchor());
-                fileData.setAnchor(null); // clear the anchor by 'find in files'
 
                 editor.setOnFileChangedListener(changedFileData -> {
                     if (log.isTraceEnabled()) log.trace("File changed: %s".formatted(changedFileData.getFile()));

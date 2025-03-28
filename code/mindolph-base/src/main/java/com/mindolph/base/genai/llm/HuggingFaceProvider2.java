@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
- * <a href="https://huggingface.co/docs/api-inference/en/index">...</a>
+ * https://huggingface.co/docs/api-inference/en/index
  *
  * @author mindolph.com@gmail.com
  * @since 1.7.4
@@ -101,7 +101,7 @@ public class HuggingFaceProvider2 extends BaseApiLlmProvider {
                 .post(requestBody)
                 .build();
         AtomicInteger outputTokens = new AtomicInteger();
-        streamEventSource = OkHttpUtils.sse(client, request, (Consumer<String>) data -> {
+        OkHttpUtils.sse(client, request, (Consumer<String>) data -> {
             if (log.isTraceEnabled()) log.trace(data);
             JsonObject resBody = new Gson().fromJson(data, JsonObject.class);
             JsonObject candidate = resBody.get("token").getAsJsonObject();
@@ -116,12 +116,12 @@ public class HuggingFaceProvider2 extends BaseApiLlmProvider {
             }
         }, (msg, throwable) -> {
 //            log.error(msg, throwable);
-            log.error("HuggingFace api response error", throwable);
+            log.error("huggingface api response error", throwable);
             String message = "ERROR";
             if (StringUtils.isNotBlank(msg)) {
                 try {
                     message = JsonParser.parseString(msg).getAsJsonObject().get("error").getAsString();
-                } catch (Exception e) {
+                } catch (JsonSyntaxException e) {
                     log.warn("Not exception from HuggingFace API: " + e.getLocalizedMessage());
                     // skip parsing exception
                     message = msg;
@@ -131,22 +131,6 @@ public class HuggingFaceProvider2 extends BaseApiLlmProvider {
         }, () -> {
             consumer.accept(new StreamToken(StringUtils.EMPTY, outputTokens.get(), true, false));
         });
-    }
-
-
-    @Override
-    protected String apiUrl() {
-        return API_URL;
-    }
-
-    @Override
-    protected String predictPromptTemplate() {
-        return template;
-    }
-
-    @Override
-    protected String streamPromptTemplate() {
-        return streamTemplate;
     }
 
 }

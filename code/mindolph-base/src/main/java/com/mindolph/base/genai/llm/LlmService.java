@@ -1,7 +1,6 @@
 package com.mindolph.base.genai.llm;
 
 import com.mindolph.base.genai.GenAiEvents.Input;
-import com.mindolph.base.genai.InputBuilder;
 import com.mindolph.base.plugin.PluginEventBus;
 import com.mindolph.core.llm.ProviderProps;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class LlmService {
     private static final Logger log = LoggerFactory.getLogger(LlmService.class);
     private static LlmService ins;
     private LlmProvider llmProvider;
-    private boolean isStopped; // stopped by user
+    private boolean isStopped;
     private String activeAiProvider;
 
     public static synchronized LlmService getIns() {
@@ -77,20 +76,14 @@ public class LlmService {
                 llmProvider = new DeepSeekProvider(props.apiKey(), props.aiModel(), props.useProxy());
             }
             else {
-                throw new RuntimeException("No llm provider setup: %s".formatted(activeAiProvider));
+                throw new RuntimeException("No llm provider setup: " + activeAiProvider);
             }
         }
     }
 
-    /**
-     *
-     * @param input
-     * @param outputParams
-     * @return
-     */
+
     public StreamToken predict(Input input, OutputParams outputParams) {
         log.info("Generate content with LLM provider");
-        isStopped = false;
         StreamToken generated = null;
         try {
             generated = llmProvider.predict(input, outputParams);
@@ -115,34 +108,23 @@ public class LlmService {
         return generated;
     }
 
-    /**
-     *
-     * @param input
-     * @param outputParams
-     * @param consumer to handle streaming result, like streaming output, error handling or stopping handling.
-     */
     public void stream(Input input, OutputParams outputParams, Consumer<StreamToken> consumer) {
-        isStopped = false;
         llmProvider.stream(input, outputParams, streamToken -> {
             if (isStopped) {
-                // Don't use stopping flag to control the working states, since the stream might return with multiple times even you stop it.
-                llmProvider.stopStreaming();
-                // force to stop
-                streamToken.setStop(true);
-                streamToken.setText("Streaming is stopped by user/exception");
+                isStopped = false;
                 consumer.accept(streamToken);
-                // throw new RuntimeException("Streaming is stopped by user/exception"); // this exception stops the streaming from http connection.
+                // this exception stops the streaming from http connection.
+                throw new RuntimeException("Streaming is stopped by user/exception");
             }
             consumer.accept(streamToken);
         });
     }
 
     /**
-     * Summarize user input text screamingly.
      *
      * @param input
      * @param outputParams
-     * @param consumer to handle streaming result, like streaming output, error handling or stopping handling.
+     * @param consumer
      * @since 1.11
      */
     public void summarize(Input input, OutputParams outputParams, Consumer<StreamToken> consumer) {
@@ -153,18 +135,12 @@ public class LlmService {
                 ```
                 """.formatted(input.text());
         // replace with new prompt
-        Input in = new InputBuilder().model(input.model()).text(prompt).temperature(input.temperature()).maxTokens(input.maxTokens())
-                .outputAdjust(input.outputAdjust()).isRetry(input.isRetry()).isStreaming(input.isStreaming())
-                .createInput();
-        isStopped = false;
+        Input in = new Input(input.model(), prompt, input.temperature(), input.maxTokens(), input.outputAdjust(), input.isRetry(), input.isStreaming());
         llmProvider.stream(in, outputParams, streamToken -> {
             if (isStopped) {
-                // Don't use stopping flag to control the working states, since the stream might return with multiple times even you stop it.
-                llmProvider.stopStreaming();
-                streamToken.setText("Streaming is stopped by user/exception");
-                streamToken.setStop(true);
+                isStopped = false;
                 consumer.accept(streamToken);
-                // throw new RuntimeException("Streaming is stopped by user/exception"); // this exception stops the streaming from http connection.
+                throw new RuntimeException("Streaming is stopped by user/exception"); // this exception stops the streaming from http connection.
             }
             consumer.accept(streamToken);
         });
@@ -175,10 +151,6 @@ public class LlmService {
      */
     public void stop() {
         this.isStopped = true;
-    }
-
-    public boolean isStopped() {
-        return isStopped;
     }
 
     public String getActiveAiProvider() {

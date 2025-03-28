@@ -6,7 +6,6 @@ import com.mindolph.mfx.util.TextUtils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
-import okhttp3.sse.EventSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -30,8 +29,6 @@ public abstract class BaseApiLlmProvider extends BaseLlmProvider {
     private static final Logger log = LoggerFactory.getLogger(BaseApiLlmProvider.class);
 
     protected OkHttpClient client;
-
-    protected EventSource streamEventSource;
 
     public BaseApiLlmProvider(String apiKey, String aiModel, boolean useProxy) {
         super(apiKey, aiModel, useProxy);
@@ -69,7 +66,7 @@ public abstract class BaseApiLlmProvider extends BaseLlmProvider {
 //        String encoded = new String(JsonStringEncoder.getInstance().encodeAsUTF8(input.text()));
         String encoded = input.text();
         Map<String, Object> args = super.formatParams(encoded, outputParams);
-        String formattedPrompt = args.entrySet().stream().reduce(PROMPT_FORMAT_TEMPLATE,
+        String formattedPrompt = args.entrySet().stream().reduce(TEMPLATE,
                 (s, e) -> s.replace("{{%s}}".formatted(e.getKey()), e.getValue().toString()),
                 (s, s2) -> s);
 //        formattedPrompt = StringUtils.strip(formattedPrompt);
@@ -108,16 +105,6 @@ public abstract class BaseApiLlmProvider extends BaseLlmProvider {
         return false;
     }
 
-    @Override
-    public void stopStreaming() {
-        if (streamEventSource != null) {
-            streamEventSource.cancel();
-        }
-        else {
-            log.debug("No stream event source available");
-        }
-    }
-
     /**
      * Inherit to support other more finish reasons.
      *
@@ -126,11 +113,5 @@ public abstract class BaseApiLlmProvider extends BaseLlmProvider {
     protected List<String> getFinishReasons() {
         return Collections.singletonList("stop");
     }
-
-    protected abstract String apiUrl();
-
-    protected abstract String predictPromptTemplate();
-
-    protected abstract String streamPromptTemplate();
 
 }

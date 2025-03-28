@@ -11,7 +11,6 @@ import com.mindolph.mfx.dialog.BaseDialogController;
 import com.mindolph.mfx.dialog.CustomDialogBuilder;
 import com.mindolph.mfx.dialog.DialogFactory;
 import com.mindolph.mindmap.preference.MmdPreferencesPane;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonBar;
@@ -57,7 +56,7 @@ public class PreferencesDialog extends BaseDialogController<Void> {
     @FXML
     private Tab tabGenAi;
 
-    private int lastActivatedTabIndex = 0;
+    private static int lastActivatedTabIndex = 0;
 
     private final ButtonType resetButtonType = new ButtonType("Reset Default", ButtonBar.ButtonData.LEFT);
 

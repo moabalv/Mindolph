@@ -23,7 +23,8 @@ public class LlmProviderTest {
 
     private JsonObject props;
 
-    private final Input testInput = new InputBuilder().text("讲个笑话").temperature(0.5f).maxTokens(512).outputAdjust(OutputAdjust.SHORTER).isRetry(false).isStreaming(false).createInput();
+    private final Input testInput = new Input("讲个笑话", 0.5f, 512,
+            OutputAdjust.SHORTER, false, false);
 
     @BeforeEach
     public void setup() {
@@ -61,8 +62,8 @@ public class LlmProviderTest {
         disableProxy();
         String apiKey = loadApiKey(CHAT_GLM.getName());
         ChatGlmProvider provider = new ChatGlmProvider(apiKey, "glm-4", false);
-        StreamToken predict = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
-        System.out.println(predict);
+        String result = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
+        System.out.println(result);
     }
 
     @Test
@@ -81,8 +82,8 @@ public class LlmProviderTest {
         enableProxy();
         String apiKey = loadApiKey(HUGGING_FACE.getName());
         HuggingFaceProvider2 provider = new HuggingFaceProvider2(apiKey, "mistralai/Mistral-7B-Instruct-v0.2", true);
-        StreamToken predict = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
-        System.out.println(predict);
+        String result = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
+        System.out.println(result);
     }
 
     @Test
@@ -109,8 +110,8 @@ public class LlmProviderTest {
         disableProxy();
         String apiKey = loadApiKey(ALI_Q_WEN.getName());
         QwenProvider provider = new QwenProvider(apiKey, "qwen-turbo", false);
-        StreamToken predict = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
-        System.out.println(predict);
+        String result = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
+        System.out.println(result);
     }
 
     @Test
@@ -140,7 +141,7 @@ public class LlmProviderTest {
         disableProxy();
         String apiKey = loadApiKey(DEEP_SEEK.getName());
         DeepSeekProvider provider = new DeepSeekProvider(apiKey, "deepseek-chat", false);
-        StreamToken predict = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
-        System.out.println(predict);
+        String result = provider.predict(testInput, new OutputParams(OutputAdjust.SHORTER, OutputFormat.TEXT));
+        System.out.println(result);
     }
 }
