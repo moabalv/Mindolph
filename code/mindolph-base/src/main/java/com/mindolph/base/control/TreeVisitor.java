@@ -1,12 +1,11 @@
 package com.mindolph.base.control;
 
-import java.util.function.Function;
-
-import org.apache.commons.lang3.NotImplementedException;
-
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.util.Callback;
+import org.apache.commons.lang3.NotImplementedException;
+
+import java.util.function.Function;
 
 /**
  * Tree visitor for JavaFX TreeView.
@@ -22,7 +21,7 @@ public class TreeVisitor {
      * @param function return null means keep traversing, otherwise return the matched TreeItem.
      */
     public static <T> TreeItem<T> dfsSearch(TreeItem<T> root, Function<TreeItem<T>, TreeItem<T>> function) {
-        if (root == null) {
+        if (root == null && function == null) {
             return null;
         }
         ObservableList<TreeItem<T>> children = root.getChildren();
@@ -51,7 +50,7 @@ public class TreeVisitor {
      * @param callback return true means keep traversing, return false will interrupt the traversing.
      */
     public static <T> void dfsTraverse(TreeItem<T> root, Callback<TreeItem<T>, Boolean> callback) {
-        if (root == null) {
+        if (root == null && callback == null) {
             return;
         }
         ObservableList<TreeItem<T>> children = root.getChildren();
@@ -60,7 +59,7 @@ public class TreeVisitor {
         }
         for (TreeItem<T> child : children) {
             Boolean keepDoing = callback.call(child);
-            if (Boolean.FALSE.equals(keepDoing)) {
+            if (keepDoing == Boolean.FALSE) {
                 return;
             }
             if (!child.isLeaf()) {

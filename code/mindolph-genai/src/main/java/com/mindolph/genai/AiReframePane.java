@@ -4,16 +4,17 @@ import com.mindolph.base.FontIconManager;
 import com.mindolph.base.constant.IconKey;
 import com.mindolph.base.genai.GenAiEvents;
 import com.mindolph.base.genai.GenAiEvents.Input;
-import com.mindolph.base.genai.InputBuilder;
-import com.mindolph.base.util.NodeUtils;
-import com.mindolph.core.constant.GenAiConstants;
 import com.mindolph.core.constant.GenAiConstants.OutputAdjust;
+import com.mindolph.core.constant.GenAiConstants;
+import com.mindolph.base.util.NodeUtils;
 import com.mindolph.mfx.util.FxmlUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+
+import static com.mindolph.core.constant.GenAiConstants.MAX_GENERATION_TOKENS;
 
 /**
  * @author mindolph.com@gmail.com
@@ -36,15 +37,18 @@ public class AiReframePane extends StackPane {
     @FXML
     private Label lbMsg;
 
-    private final Object editorId;
+    private Object editorId;
 
-    private final Input input;
+    private String inputText;
+
+    private float temperature;
 
     private ContextMenu adjustMenu;
 
-    public AiReframePane(Object editorId, Input input, int outputTokens) {
+    public AiReframePane(Object editorId, String inputText, float temperature, int outputTokens) {
         this.editorId = editorId;
-        this.input = input;
+        this.inputText = inputText;
+        this.temperature = temperature;
         FxmlUtils.loadUri("/genai/ai_reframe_pane.fxml", this);
 
         lbIcon.setGraphic(FontIconManager.getIns().getIcon(IconKey.MAGIC));
@@ -60,10 +64,7 @@ public class AiReframePane extends StackPane {
             this.onWorking();
         });
         btnRetry.setOnAction(event -> {
-            GenAiEvents.getIns().emitGenerateEvent(editorId,
-                    new InputBuilder().model(input.model()).text(input.text()).temperature(input.temperature())
-                            .maxTokens(input.maxTokens()).outputAdjust(null).isRetry(true).isStreaming(input.isStreaming())
-                            .createInput());
+            GenAiEvents.getIns().emitGenerateEvent(editorId, new Input(inputText, this.temperature, MAX_GENERATION_TOKENS, null, true, true));
             this.onWorking();
         });
         btnAdjust.setOnMouseClicked(event -> {
@@ -82,10 +83,7 @@ public class AiReframePane extends StackPane {
         ContextMenu menu = new ContextMenu();
         EventHandler<ActionEvent> eventHandler = event -> {
             MenuItem mi = (MenuItem) event.getSource();
-            GenAiEvents.getIns().emitGenerateEvent(editorId,
-                    new InputBuilder().model(input.model()).text(input.text()).temperature(input.temperature())
-                            .maxTokens(input.maxTokens()).outputAdjust((OutputAdjust) mi.getUserData()).isRetry(true).isStreaming(input.isStreaming())
-                            .createInput());
+            GenAiEvents.getIns().emitGenerateEvent(editorId, new Input(inputText, this.temperature, MAX_GENERATION_TOKENS, (OutputAdjust) mi.getUserData(), true, true));
             onWorking();
         };
         MenuItem miShorter = new MenuItem("Shorter", FontIconManager.getIns().getIcon(IconKey.SHORT_TEXT));

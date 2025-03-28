@@ -129,6 +129,15 @@ public class ThemeSnippetGroup extends BasePlantUmlSnippetGroup {
                                 """),
                         new Snippet().title("vibrant").code("""
                                 !theme vibrant
+                                """),
+                        new Snippet().title("Message Success").code("""
+                                $success("⨁")
+                                """),
+                        new Snippet().title("Message Failure").code("""
+                                $failure("⨁")
+                                """),
+                        new Snippet().title("Message Warning").code("""
+                                $warning("⨁")
                                 """)
                 )
         );

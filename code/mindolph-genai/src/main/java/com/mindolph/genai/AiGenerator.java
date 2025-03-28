@@ -6,18 +6,17 @@ import com.mindolph.base.genai.GenAiEvents;
 import com.mindolph.base.genai.GenAiEvents.Input;
 import com.mindolph.base.genai.GenAiEvents.StreamOutput;
 import com.mindolph.base.genai.llm.LlmConfig;
+import com.mindolph.base.genai.llm.StreamToken;
 import com.mindolph.base.genai.llm.LlmService;
 import com.mindolph.base.genai.llm.OutputParams;
-import com.mindolph.base.genai.llm.StreamToken;
 import com.mindolph.base.plugin.Generator;
 import com.mindolph.base.plugin.Plugin;
 import com.mindolph.core.constant.GenAiConstants.ProviderInfo;
+import com.mindolph.core.llm.ProviderProps;
 import com.mindolph.core.constant.GenAiModelProvider;
 import com.mindolph.core.constant.GenAiModelProvider.ProviderType;
-import com.mindolph.core.llm.ProviderProps;
 import com.mindolph.mfx.dialog.DialogFactory;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SkinBase;
 import javafx.scene.layout.Pane;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.mindolph.core.constant.GenAiConstants.FILE_OUTPUT_MAPPING;
@@ -46,9 +44,8 @@ public class AiGenerator implements Generator {
     private static final Logger log = LoggerFactory.getLogger(AiGenerator.class);
 
     private Consumer<Boolean> cancelConsumer;
-    // consumer before streaming.
     private Consumer<Void> beforeGenerateConsumer;
-    private BiConsumer<StreamOutput, StackPane> streamOutputConsumer;
+    private Consumer<StreamOutput> streamOutputConsumer;
     private Consumer<GenAiEvents.Output> generateConsumer;
     private Consumer<Boolean> completeConsumer;
     private Consumer<StackPane> panelShowingConsumer;
@@ -64,9 +61,6 @@ public class AiGenerator implements Generator {
     private AiSummaryPane summarizePanel;
     private AiReframePane reframePanel;
 
-    // remember the latest prompt
-    private String latestPrompt;
-
     public AiGenerator(Plugin plugin, Object editorId, String fileType) {
         this.plugin = plugin;
         this.editorId = editorId; // the editor seems not useful yet.
@@ -75,23 +69,24 @@ public class AiGenerator implements Generator {
     }
 
     private void listenGenAiEvents() {
-        Consumer<String> onError = (msg) -> {
-            Platform.runLater(() -> {
-                cancelConsumer.accept(false);
-                String err = "Failed to generate content by %s.\n %s\n".formatted(LlmService.getIns().getActiveAiProvider(), msg);
-                if (inputPanel != null)
-                    inputPanel.onStop(err);
-                if (reframePanel != null)
-                    reframePanel.onStop(err);
-            });
-        };
         GenAiEvents.getIns().subscribeGenerateEvent(editorId, input -> {
             inputMap.put(editorId, input);
+
+            Consumer<String> onError = (msg) -> {
+                Platform.runLater(() -> {
+                    cancelConsumer.accept(false);
+                    String err = "Failed to generate content by %s.\n %s\n".formatted(LlmService.getIns().getActiveAiProvider(), msg);
+                    if (inputPanel != null)
+                        inputPanel.onStop(err);
+                    if (reframePanel != null)
+                        reframePanel.onStop(err);
+                });
+            };
 
             Consumer<StreamToken> showReframePane = (streamToken) -> {
                 AiGenerator.this.removeFromParent(reframePanel);
                 AiGenerator.this.removeFromParent(inputPanel);
-                reframePanel = new AiReframePane(editorId, input, streamToken.outputTokens());
+                reframePanel = new AiReframePane(editorId, input.text(), input.temperature(), streamToken.outputTokens());
                 AiGenerator.this.addToParent(reframePanel);
                 panelShowingConsumer.accept(reframePanel);
             };
@@ -103,22 +98,18 @@ public class AiGenerator implements Generator {
                 });
                 if (streamOutputConsumer == null) {
                     onError.accept("Not support stream generation");
-                    return;
                 }
-                LlmService.getIns().stream(input, new OutputParams(input.outputAdjust(), FILE_OUTPUT_MAPPING.get(fileType), input.outputLanguage()),
+                LlmService.getIns().stream(input, new OutputParams(input.outputAdjust(), FILE_OUTPUT_MAPPING.get(fileType)),
                         streamToken -> {
                             if (streamToken.isError()) {
                                 log.warn("error from streaming: {}", streamToken);
                                 onError.accept(streamToken.text());
                             }
                             else {
-                                // make sure no output will be handled if user choose to stop, even it is still streaming.
-                                if (!LlmService.getIns().isStopped()) {
-                                    // accept streaming output (even with `stop` one).
-                                    streamOutputConsumer.accept(new StreamOutput(streamToken, input.isRetry()), inputPanel);
-                                    if (streamToken.isStop()) {
-                                        Platform.runLater(() -> showReframePane.accept(streamToken));
-                                    }
+                                // accept streaming output (even with `stop` one).
+                                streamOutputConsumer.accept(new StreamOutput(streamToken, input.isRetry()));
+                                if (streamToken.isStop()) {
+                                    Platform.runLater(() -> showReframePane.accept(streamToken));
                                 }
                             }
                         });
@@ -156,17 +147,15 @@ public class AiGenerator implements Generator {
                 }
                 case CANCEL -> {
                     cancelConsumer.accept(true);
-                    LlmService.getIns().stop();
                     removeFromParent(inputPanel);
-                    removeFromParent(summarizePanel);
                 }
                 case STOP -> {
                     LlmService.getIns().stop();
                 }
-//                case ABORT -> {
-//                    LlmService.getIns().stop();
-//                    removeFromParent(summarizePanel);
-//                }
+                case ABORT -> {
+                    LlmService.getIns().stop();
+                    removeFromParent(summarizePanel);
+                }
                 default -> log.warn("unknown action type: %s".formatted(actionType));
             }
         });
@@ -201,23 +190,20 @@ public class AiGenerator implements Generator {
             DialogFactory.warnDialog("You have to set up the Gen-AI provider properly first.");
             return null;
         }
-        if (StringUtils.isNotBlank(defaultInput)) {
-            latestPrompt = defaultInput;
-        }
-        inputPanel = new AiInputPane(editorId, fileType, latestPrompt);
+        inputPanel = new AiInputPane(editorId, fileType, defaultInput);
         addToParent(inputPanel);
         panelShowingConsumer.accept(inputPanel);
         return inputPanel;
     }
 
     @Override
-    public StackPane showSummarizePanel(String input, Node bondEditor) {
+    public StackPane showSummarizePanel(String input) {
         if (!checkSettings()) {
             DialogFactory.warnDialog("You have to set up the Gen-AI provider properly first.");
             return null;
         }
-        summarizePanel = new AiSummaryPane(editorId, fileType, input, bondEditor);
-        this.addToParent(summarizePanel);
+        summarizePanel = new AiSummaryPane(editorId, fileType, input);
+        addToParent(summarizePanel);
         panelShowingConsumer.accept(summarizePanel);
         return summarizePanel;
     }
@@ -292,7 +278,7 @@ public class AiGenerator implements Generator {
     }
 
     @Override
-    public void setOnStreaming(BiConsumer<StreamOutput, StackPane> consumer) {
+    public void setOnStreaming(Consumer<StreamOutput> consumer) {
         this.streamOutputConsumer = consumer;
     }
 

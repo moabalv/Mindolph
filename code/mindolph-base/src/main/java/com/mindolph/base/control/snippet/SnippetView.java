@@ -1,26 +1,12 @@
 package com.mindolph.base.control.snippet;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
-import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.textfield.TextFields;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.mindolph.base.BaseView;
 import com.mindolph.base.event.EventBus;
 import com.mindolph.base.plugin.Plugin;
 import com.mindolph.base.plugin.PluginManager;
 import com.mindolph.base.plugin.SnippetHelper;
-import static com.mindolph.core.constant.SupportFileTypes.TYPE_MARKDOWN;
-import static com.mindolph.core.constant.SupportFileTypes.TYPE_MIND_MAP;
-import static com.mindolph.core.constant.SupportFileTypes.TYPE_PLANTUML;
 import com.mindolph.core.model.NodeData;
 import com.mindolph.core.model.Snippet;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,10 +20,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.*;
-import java.util.function.Function;
-import static com.mindolph.core.constant.SupportFileTypes.*;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static com.mindolph.core.constant.SupportFileTypes.*;
 
 /**
  * @author mindolph.com@gmail.com
@@ -60,9 +49,7 @@ public class SnippetView extends BaseView {
 
     private String currentFileType;
 
-    // use name instead of object to match the pane, because panes are re-created everytime the SnippetView reloaded.
-    // this should be changed.TODO
-    private final Map<String, String> fileTypeExpandedPaneMapping = new HashMap<>();
+    private String lastExpandedPaneName;
 
     public SnippetView() {
         super("/control/snippet_view.fxml", false);
@@ -71,7 +58,6 @@ public class SnippetView extends BaseView {
         tfKeyword.textProperty().addListener((observableValue, s, newKeyword) -> {
             this.filter(newKeyword);
         });
-        // reload everything when being activated.
         super.activeProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 this.reload(this.snippetGroups, currentFileType);
@@ -110,16 +96,11 @@ public class SnippetView extends BaseView {
                         this.reload(null, null);
                     }
                 }
-                default -> { 
-                    throw new IllegalArgumentException();
-                }                
             }
         });
 
         accordion.expandedPaneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                fileTypeExpandedPaneMapping.put(currentFileType, newValue.getText());
-            }
+            if (newValue != null) lastExpandedPaneName = newValue.getText();
         });
 
         Platform.runLater(() -> {
@@ -155,7 +136,7 @@ public class SnippetView extends BaseView {
         if (!super.getActive()) return;
         accordion.getPanes().clear();
         if (snippetGroups != null && !snippetGroups.isEmpty()) {
-            if (!vBox.getChildren().contains(tfKeyword)) vBox.getChildren().addFirst(tfKeyword);
+            if (!vBox.getChildren().contains(tfKeyword)) vBox.getChildren().add(0, tfKeyword);
             for (BaseSnippetGroup snippetGroup : snippetGroups) {
 //                log.debug("Load snippets for file: %s".formatted(snippetGroup.getFileType()));
                 Collection<Plugin> plugins = PluginManager.getIns().findPlugins(fileType);
@@ -208,14 +189,9 @@ public class SnippetView extends BaseView {
         // Expand first panel in accordion.
         Platform.runLater(() -> {
             // expand last expanded pane if there was one.
-            String lastExpandedPaneName = fileTypeExpandedPaneMapping.get(this.currentFileType);
             if (!accordion.getPanes().isEmpty() && StringUtils.isNoneBlank(lastExpandedPaneName)) {
-                log.debug("Expand last expanded pane: {}", lastExpandedPaneName);
-                Optional<TitledPane> first = accordion.getPanes().filtered(p -> p.getText().equalsIgnoreCase(lastExpandedPaneName)).stream().findFirst();
-                first.ifPresent(titledPane -> {
-                    log.debug("Expanded pane: %s".formatted(titledPane.getText()));
-                    titledPane.setExpanded(true);
-                });
+                Optional<TitledPane> first = accordion.getPanes().filtered(p -> p.getText().toLowerCase().equals(lastExpandedPaneName)).stream().findFirst();
+                first.ifPresent(titledPane -> titledPane.setExpanded(true));
             }
         });
         // filter snippets by keywords and set to the view in accordion.
@@ -227,9 +203,9 @@ public class SnippetView extends BaseView {
                 if (snippetGroup != null) {
                     if (StringUtils.isNotEmpty(keyword)) {
                         ObservableList<Snippet> filteredSnippets;
-                        List<?> filtered = snippetGroup.snippets.stream().filter(snippet -> StringUtils.containsIgnoreCase(snippet.getTitle(), keyword)
-                                        || (snippet.getDescription() != null && StringUtils.containsIgnoreCase(snippet.getDescription(), keyword))
-                                        || (snippet.getCode() != null && StringUtils.containsIgnoreCase(snippet.getCode(), keyword)))
+                        List<?> filtered = snippetGroup.snippets.stream().filter(snippet -> snippet.getTitle().contains(keyword)
+                                        || (snippet.getDescription() != null && snippet.getDescription().contains(keyword))
+                                        || (snippet.getCode() != null && snippet.getCode().contains(keyword)))
                                 .toList();
                         filteredSnippets = FXCollections.observableList(filtered.stream()
                                 .map((Function<Object, Snippet>) o -> (Snippet) o).toList());

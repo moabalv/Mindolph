@@ -1,13 +1,7 @@
 package com.mindolph.base.editor;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.mindolph.base.EditorContext;
 import com.mindolph.base.container.FixedSplitPane;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -17,6 +11,10 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Editor with preview.
@@ -51,7 +49,7 @@ public abstract class BasePreviewEditor extends BaseCodeAreaEditor implements Ed
     protected ViewMode viewMode = ViewMode.BOTH;
 
     private final AtomicLong scrollStartTime = new AtomicLong(0);
-    private final static double SCROLL_SPEED_THRESHOLD = 1.75; // the threshold of scroll speed between scroll and swipe.
+    private final double SCROLL_SPEED_THRESHOLD = 1.75; // the threshold of scroll speed between scroll and swipe.
 
     public BasePreviewEditor(String fxmlResourcePath, EditorContext editorContext, boolean acceptDraggingFiles) {
         super(fxmlResourcePath, editorContext, acceptDraggingFiles);
@@ -59,16 +57,14 @@ public abstract class BasePreviewEditor extends BaseCodeAreaEditor implements Ed
             throw new RuntimeException("Your should add SplitPane in to FXML with name 'splitPanel'");
         }
         // Not all preview-able editors need this scroll view.
-        // Some component like Webview does not work here.
         if (this.previewPane != null) {
-            if(log.isDebugEnabled())log.debug("listen to remember the preview pane's scroll position");
             this.previewPane.hvalueProperty().addListener((observable, oldValue, newValue) -> currentScrollH = newValue.doubleValue());
             this.previewPane.vvalueProperty().addListener((observable, oldValue, newValue) -> currentScrollV = newValue.doubleValue());
         }
         fixedSplitPane.skinProperty().addListener((observable, oldValue, newValue) -> {
-            log.debug("skin is ready: %s".formatted(newValue));
+            log.debug("skin is ready: " + newValue);
             if (editorContext.getOrientation() != null) {
-                log.debug("open editor on orientation: %s".formatted(editorContext.getOrientation()));
+                log.debug("open editor on orientation: " + editorContext.getOrientation());
                 fixedSplitPane.setOrientation(editorContext.getOrientation());
             }
         });
@@ -140,8 +136,8 @@ public abstract class BasePreviewEditor extends BaseCodeAreaEditor implements Ed
     /**
      * Convert scroll position from one to another by their viewport heights and document heights.
      *
-     * @param srcValue     The value after the scroll bar scrolls from source component
-     * @param srcViewport  Height or width of source component's viewport
+     * @param srcValue
+     * @param srcViewport
      * @param srcTotal
      * @param destViewport
      * @param destTotal
@@ -150,24 +146,10 @@ public abstract class BasePreviewEditor extends BaseCodeAreaEditor implements Ed
     protected double convertScrollPosition(double srcValue, double srcViewport, double srcTotal, double destViewport, double destTotal) {
         double src = srcTotal - srcViewport;
         double dest = destTotal - destViewport;
-        double delta = 0;
-//        double delta = calculateDelta(srcValue, destTotal, destViewport);
-//        double delta = calculateDelta(srcValue, srcTotal);
         if (log.isTraceEnabled())
-            log.trace("convert position %s in [%s/%s] to [%s/%s]".formatted(srcValue, srcViewport, srcTotal, destViewport, destTotal));
-        return ((srcValue + delta) / src) * dest;
+            log.trace("convert: position %s in [%s/%s] to [%s/%s]".formatted(srcValue, srcViewport, srcTotal, destViewport, destTotal));
+        return (srcValue / src) * dest;
     }
-
-    // coefficient to adjust the scroll sync.
-//    double COEFFICIENT = 0.25;
-//    // use parabola as delta
-//    private double calculateDelta(double x, double total, double viewport) {
-//        return ((-1 * COEFFICIENT * 4 * viewport) / Math.pow(total, 2)) * (Math.pow((x - 0.5 * total), 2)) + (COEFFICIENT * viewport);
-//    }
-//
-//    private double calculateDelta(double x, double total) {
-//        return 0.005 * (total - x);
-//    }
 
     @Override
     public void export() {
@@ -196,6 +178,7 @@ public abstract class BasePreviewEditor extends BaseCodeAreaEditor implements Ed
             previewPane.setHvalue(currentScrollH);
             previewPane.setVvalue(currentScrollV);
         }
+
     }
 
     public void centerSplitter() {

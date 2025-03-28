@@ -4,7 +4,6 @@ import com.mindolph.base.plugin.*;
 import com.mindolph.core.constant.SupportFileTypes;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 
 import java.net.URL;
 import java.util.Collection;
@@ -19,22 +18,7 @@ import java.util.ResourceBundle;
 public class ExtCodeAreaDemo implements Initializable {
 
     @FXML
-    private SmartCodeArea smartCodeArea;
-
-    @FXML
-    private Button btnEnable;
-
-    @FXML
-    public void onEnabled() {
-        if (smartCodeArea.isDisabled()) {
-            smartCodeArea.setDisable(false);
-            btnEnable.setText("Disable");
-        }
-        else {
-            smartCodeArea.setDisable(true);
-            btnEnable.setText("Enable");
-        }
-    }
+    private SmartCodeArea extCodeArea;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

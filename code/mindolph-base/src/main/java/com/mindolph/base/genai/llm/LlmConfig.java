@@ -57,7 +57,7 @@ public class LlmConfig {
     }
 
     /**
-     * Activate custom model directly for active provider.
+     * Find custom model directly for active provider.
      *
      * @param provider
      * @param modelMeta
@@ -72,9 +72,7 @@ public class LlmConfig {
     }
 
     /**
-     * Load all LLM providers.
-     *
-     * @return Provider name -> Provider properties
+     * @return
      */
     public Map<String, ProviderProps> loadGenAiProviders() {
         String json = fxPreferences.getPreferenceAlias(PrefConstants.GEN_AI_PROVIDERS,
@@ -103,9 +101,6 @@ public class LlmConfig {
                 ProviderProps props = providers.get(activeProvider);
                 if (StringUtils.isNotBlank(props.aiModel())) {
                     if ("Custom".equals(props.aiModel())) {
-                        if (props.customModels() == null) {
-                            return null;
-                        }
                         return props.customModels().stream().filter(ModelMeta::active).findFirst().orElse(null);
                     }
                     // for pre-defined models

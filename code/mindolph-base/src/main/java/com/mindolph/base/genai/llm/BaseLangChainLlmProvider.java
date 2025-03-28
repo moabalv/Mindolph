@@ -30,8 +30,8 @@ public abstract class BaseLangChainLlmProvider extends BaseLlmProvider {
 
     @Override
     public StreamToken predict(Input input, OutputParams outputParams) {
-        log.debug("Proxy: %s".formatted(System.getenv("http.proxyHost")));
-        PromptTemplate promptTemplate = PromptTemplate.from(PROMPT_FORMAT_TEMPLATE);
+        log.debug("Proxy: " + System.getenv("http.proxyHost"));
+        PromptTemplate promptTemplate = PromptTemplate.from(TEMPLATE);
         Map<String, Object> params = super.formatParams(input.text(), outputParams);
         log.debug(String.valueOf(params));
         Prompt prompt = promptTemplate.apply(params);
@@ -70,15 +70,11 @@ public abstract class BaseLangChainLlmProvider extends BaseLlmProvider {
         });
     }
 
-    @Override
-    public void stopStreaming() {
-        // Nothing I can do for now. TODO
-    }
-
     private Prompt createPrompt(String input, OutputParams outputParams) {
         log.debug("System Proxy: %s".formatted(System.getenv("http.proxyHost")));
-        PromptTemplate promptTemplate = PromptTemplate.from(PROMPT_FORMAT_TEMPLATE);
+        PromptTemplate promptTemplate = PromptTemplate.from(TEMPLATE);
         Map<String, Object> params = super.formatParams(input, outputParams);
+        log.debug(String.valueOf(params));
         Prompt prompt = promptTemplate.apply(params);
         log.info("prompt: '%s'".formatted(prompt.text()));
         return prompt;
