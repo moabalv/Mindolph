@@ -13,7 +13,18 @@
     <description>
         Personal knowledge management tool based on mind map, markdown etc.&lt;br/&gt;website:https://github.com/mindolph/Mindolph&lt;br/&gt;email: mindolph.com@gmail.com
     </description>
-
+    
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+    </repositories>
+    
     <properties>
         <main-class>com.mindolph.desktop.Launcher</main-class>
         <app.name>Mindolph</app.name>

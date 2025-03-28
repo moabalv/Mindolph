@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="mindolph-plantuml" />
+        <module name="mindolph-markdown" />
+        <module name="mindolph-core" />
+        <module name="mindolph-base" />
+        <module name="mindolph-mindmap" />
+        <module name="mindolph-csv" />
+        <module name="mindolph-desktop" />
+        <module name="mindmap-panel" />
+        <module name="mindolph-genai" />
+        <module name="mindmap-model" />
+        <module name="mindolph-fx" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

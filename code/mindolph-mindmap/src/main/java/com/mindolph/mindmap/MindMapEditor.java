@@ -402,7 +402,6 @@ public class MindMapEditor extends BaseEditor {
         if (threadPoolService != null) threadPoolService.close();
         if (mindMapView != null) mindMapView.dispose();
         MindmapEvents.unsubscribeMmdSaveEvent(mindMapView);
-        System.gc();
     }
 
     @Override

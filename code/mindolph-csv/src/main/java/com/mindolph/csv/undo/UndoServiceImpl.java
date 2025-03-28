@@ -17,7 +17,7 @@ public class UndoServiceImpl<T> implements UndoService<T> {
 
     private static final Logger log = LoggerFactory.getLogger(UndoServiceImpl.class);
     private final List<Command<T>> queue = new LinkedList<>();
-    private int currentPos = 0; // point to the element that current on UI
+    private volatile int currentPos = 0; // point to the element that current on UI
 
     // applier for undo/redo
     private final Consumer<T> applier;
@@ -54,10 +54,13 @@ public class UndoServiceImpl<T> implements UndoService<T> {
         if (!isUndoAvailable()) {
             return false;
         }
-        log.debug("Undo to %d".formatted(currentPos - 1));
+        int newPos;
+        synchronized (this) {  // 🔥 Garante que apenas` uma thread modifique currentPos por vez
+            log.debug("Undo to %d".formatted(currentPos - 1));
+            newPos = --currentPos;  // Atualiza currentPos de forma segura
+        }
         isPerforming.set(true);
-        Command<T> cmd = queue.get(currentPos - 1);
-        currentPos -= 1;
+        Command<T> cmd = queue.get(newPos);
         applier.accept(cmd.getCommand());
         isPerforming.set(false);
         log.debug(printQueue());
@@ -69,10 +72,13 @@ public class UndoServiceImpl<T> implements UndoService<T> {
         if (!isRedoAvailable()) {
             return false;
         }
-        log.debug("Redo to %d".formatted(currentPos + 1));
+        int newPos;
+        synchronized (this) {
+            log.debug("Redo to %d".formatted(currentPos + 1));
+            newPos = ++currentPos;
+        }
         isPerforming.set(true);
-        Command<T> cmd = queue.get(currentPos + 1);
-        currentPos += 1;
+        Command<T> cmd = queue.get(newPos);
         applier.accept(cmd.getCommand());
         isPerforming.set(false);
         log.debug(printQueue());

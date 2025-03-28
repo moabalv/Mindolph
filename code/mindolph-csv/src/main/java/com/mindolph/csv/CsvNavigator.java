@@ -50,14 +50,14 @@ public class CsvNavigator {
     }
 
     public void moveCursorNext() {
-        this.cursor += 1;
-        this.cursor = (cursor > total - 1 ? 0 : cursor);
+        this.cursor = (cursor + 1 > total - 1) ? 0 : cursor + 1;
     }
 
+
     public void moveCursorPrev() {
-        this.cursor -= 1;
-        this.cursor = (cursor < 0 ? total - 1 : cursor);
+        this.cursor = (cursor - 1 < 0) ? Integer.valueOf(total - 1) : Integer.valueOf(cursor - 1);
     }
+
 
     public CellPos locateNext(String keyword, boolean caseSensitive) {
         int idx = this.locate(keyword, caseSensitive, false);

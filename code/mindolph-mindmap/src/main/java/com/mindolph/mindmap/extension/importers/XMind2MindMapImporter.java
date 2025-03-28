@@ -273,7 +273,6 @@ public class XMind2MindMapImporter extends BaseImportExtension {
         }
 
         ZipFile zipFile = new ZipFile(file);
-        XMindStyles styles = new XMindStyles(zipFile);
 
         return this.parseZipFile(zipFile);
     }

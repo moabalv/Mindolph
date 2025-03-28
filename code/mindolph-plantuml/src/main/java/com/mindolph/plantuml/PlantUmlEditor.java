@@ -69,7 +69,6 @@ public class PlantUmlEditor extends BasePreviewEditor implements Initializable {
     private final ContextMenu contextMenu = new ContextMenu();
 
     private final AtomicLong scrollStartTime = new AtomicLong(0);
-    private final double SCROLL_SPEED_THRESHOLD = 1.75; // the threshold of scroll speed between scroll and swipe.
 
     private Image image;
 
@@ -117,8 +116,12 @@ public class PlantUmlEditor extends BasePreviewEditor implements Initializable {
                 miPageX.setSelected(true);
             }
             miPageX.setOnAction(event -> {
-                indicator.page = (int) miPageX.getUserData();
-                refresh(codeArea.getText());
+                int selectedPage = (int) miPageX.getUserData();
+                Platform.runLater(() -> {
+                    indicator.page = selectedPage;
+                    indicator.page = (int) miPageX.getUserData();
+                    refresh(codeArea.getText());
+                });
             });
             contextMenu.getItems().add(miPageX);
         }
@@ -377,7 +380,7 @@ public class PlantUmlEditor extends BasePreviewEditor implements Initializable {
     }
 
     private static class Indicator {
-        int totalPages = 0;
+        volatile int totalPages = 0;
         int page = 0;
         List<Integer> errPages;
         List<String> pageTitles;

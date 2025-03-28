@@ -559,7 +559,6 @@ public class SVGImageExporter extends BaseExportExtension {
 
             }
             else if (shape instanceof Path path) {
-                double[] data = new double[6];
                 this.buffer.append("<path d=\"");
                 boolean nofirst = false;
                 for (PathElement e : path.getElements()) {

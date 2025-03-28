@@ -217,7 +217,7 @@ public class CsvEditor extends BaseEditor implements Initializable {
             // text content loaded from file might be not the same with generated,
             // so it's necessary to reset the cached text to avoid redundant undo history.
             this.text = rowsToCsv(tableView.getItems());
-            log.trace("cache: \n%s".formatted(this.text));
+            log.trace("cache: %n%s".formatted(this.text));
 
             // the cell factory will be used later.
             cellFactory = param -> {
@@ -634,7 +634,7 @@ public class CsvEditor extends BaseEditor implements Initializable {
                             .map(s -> s == null ? EMPTY : s).map(StringEscapeUtils::escapeCsv)
                             .collect(Collectors.joining(","));
                 })
-                .reduce((s, s2) -> "%s\n%s".formatted(s, s2));
+                .reduce((s, s2) -> "%s%n%s".formatted(s, s2));
         return reduced.orElse(EMPTY);
     }
 
