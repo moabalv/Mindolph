@@ -75,7 +75,7 @@ public class AiGenerator implements Generator {
             Consumer<String> onError = (msg) -> {
                 Platform.runLater(() -> {
                     cancelConsumer.accept(false);
-                    String err = "Failed to generate content by %s.\n %s\n".formatted(LlmService.getIns().getActiveAiProvider(), msg);
+                    String err = "Failed to generate content by %s.%n%s%n".formatted(LlmService.getIns().getActiveAiProvider(), msg);
                     if (inputPanel != null)
                         inputPanel.onStop(err);
                     if (reframePanel != null)

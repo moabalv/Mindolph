@@ -131,11 +131,12 @@ public class AwtFontSelectDialog extends BaseDialogController<Font> {
         Pair<Integer, Integer> fontSize = cbFontSize.getSelectionModel().getSelectedItem();
         if (fontSize == null) {
             DialogFactory.errDialog("Font size not selected");
+        }else {
+            Font awtFont = new Font(fontFamily.getKey(), fontStyle.getKey(), fontSize.getKey());
+            javafx.scene.text.Font fxFont = FontUtils.awtFontToFxFont(awtFont);
+            textArea.setFont(fxFont);
+            super.result = awtFont;
         }
-        Font awtFont = new Font(fontFamily.getKey(), fontStyle.getKey(), fontSize.getKey());
-        javafx.scene.text.Font fxFont = FontUtils.awtFontToFxFont(awtFont);
-        textArea.setFont(fxFont);
-        super.result = awtFont;
     }
 
 }
