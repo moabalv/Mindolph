@@ -7,7 +7,7 @@ import com.mindolph.mindmap.model.TopicNode;
 
 public class RootTopicCreator implements RootCreate<TopicNode> {
 
-    public static RootCreate<TopicNode> defaultCreator = new RootTopicCreator();
+    public static final RootCreate<TopicNode> defaultCreator = new RootTopicCreator();
 
     @Override
     public TopicNode createRoot(MindMap<TopicNode> map) {

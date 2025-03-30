@@ -1,7 +1,6 @@
 package com.mindolph.core.constant;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,7 +11,7 @@ public interface FolderConstants {
     /**
      * Exclude folders and all theirs sub folders.
      */
-   List<String> EXCLUDE_DIRS = Collections.unmodifiableList(Arrays.asList(".git", ".svn"));
+    List<String> EXCLUDE_DIRS = Arrays.asList(".git", ".svn");
 
     static void main(String[] args) {
         System.out.println(EXCLUDE_DIRS.contains(".git"));

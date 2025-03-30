@@ -1,19 +1,17 @@
 package com.mindolph.core.util;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
-
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swiftboot.util.BufferedIoUtils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.function.Consumer;
 
 /**
  * @author mindolph.com@gmail.com
@@ -44,7 +42,7 @@ public class ReleaseUtils {
             // TODO replace with BufferedIoUtils.readAllAsString() later
             StringBuffer buf = new StringBuffer();
             BufferedIoUtils.readInputStream(inputStream, 1024, bytes -> {
-                 String s = new String(bytes, StandardCharsets.UTF_8);
+                String s = new String(bytes);
                 //log.debug("'%s'".formatted(s));
                 buf.append(s);
             });

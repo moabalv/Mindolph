@@ -54,8 +54,7 @@ public class TopicUtils {
                     case NOTE: {
                         if (Boolean.parseBoolean(topic.getAttributes().get(ExtraNote.ATTR_ENCRYPTED))) {
                             result.append(LINE_SEPARATOR).append(lineIndent).append("<ENCRYPTED NOTE>");
-                        }
-                        else {
+                        } else {
                             for (String s : e.getValue().getAsString().split(LINE_SEPARATOR)) {
                                 result.append(LINE_SEPARATOR).append(lineIndent).append("> ").append(s.trim());
                             }
@@ -76,7 +75,11 @@ public class TopicUtils {
                         result.append(LINE_SEPARATOR).append(lineIndent).append(e.getValue().getAsString());
                     }
                     break;
-                }
+                    default: {
+                        result.append(LINE_SEPARATOR).append(lineIndent).append("UNKNOWN TYPE: ").append(e.getKey());
+                    }
+                    break;
+                }                
             }
         }
         result.append(LINE_SEPARATOR);

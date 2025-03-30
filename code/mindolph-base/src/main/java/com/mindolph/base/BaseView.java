@@ -25,7 +25,7 @@ public abstract class BaseView extends AnchorPane {
 
     public BaseView(String fxmlUri, boolean active) {
         this.active.set(active);
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource(fxmlUri));
+        FXMLLoader fxmlloader = new FXMLLoader(BaseView.class.getResource(fxmlUri));
         fxmlloader.setRoot(this);
         fxmlloader.setController(this);
 

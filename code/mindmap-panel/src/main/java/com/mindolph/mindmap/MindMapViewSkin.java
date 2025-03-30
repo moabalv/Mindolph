@@ -383,7 +383,7 @@ public class MindMapViewSkin<T extends MindMapView> extends BaseScalableViewSkin
             control.onEditCanceled();
         }
         else {
-            Dimension2D dim = calTextDimensionWithPaddingAndLimitation(textArea);
+            calTextDimensionWithPaddingAndLimitation(textArea);
             control.endEdit(text, true);
         }
         Platform.runLater(() -> {

@@ -74,11 +74,13 @@ public class MindMapTextMatcher extends BaseSearchMatcher {
                     }
                     else {
                         String text = path + NODE_CONNECTOR + StringUtils.abbreviate(next.getText(), 64);
+                        StringBuilder textBuilder = new StringBuilder(text);
                         for (Extra<?> extra : next.getExtras().values()) {
                             if (extra.containsPattern(file.getParentFile(), pattern)) {
-                                text += NODE_CONNECTOR + super.extractInText(searchParams, extra.getAsString(), 32);
+                                textBuilder.append(NODE_CONNECTOR)
+                                            .append(super.extractInText(searchParams, extra.getAsString(), 32));
                                 removeAncestor(foundMap, next);
-                                foundMap.put(next, text);
+                                foundMap.put(next, textBuilder.toString());
                                 break;
                             }
                         }

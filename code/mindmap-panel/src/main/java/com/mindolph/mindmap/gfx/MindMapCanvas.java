@@ -212,7 +212,7 @@ public class MindMapCanvas {
     private void drawJumps(MindMap<TopicNode> map) {
         List<TopicNode> allTopicsWithJumps = map.findAllTopicsForExtraType(Extra.ExtraType.TOPIC);
         float lineWidth = mindMapContext.safeScale(config.getTheme().getJumpLinkWidth(), 0.1f);
-        float arrowWidth = mindMapContext.safeScale(config.getTheme().getJumpLinkWidth(), 0.3f);
+        mindMapContext.safeScale(config.getTheme().getJumpLinkWidth(), 0.3f);
         Color jumpLinkColor = config.getTheme().getJumpLinkColor();
         float arrowSize = mindMapContext.safeScale(10.0f * config.getTheme().getJumpLinkWidth(), 0.2f);
         for (TopicNode src : allTopicsWithJumps) {

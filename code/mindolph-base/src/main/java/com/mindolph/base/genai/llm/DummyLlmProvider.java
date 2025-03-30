@@ -1,15 +1,14 @@
 package com.mindolph.base.genai.llm;
 
-import java.util.function.Consumer;
-
+import com.mindolph.base.genai.GenAiEvents.Input;
+import com.mindolph.core.constant.GenAiConstants;
+import com.mindolph.core.constant.GenAiConstants.OutputFormat;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.mindolph.base.genai.GenAiEvents.Input;
-import com.mindolph.core.constant.GenAiConstants;
-import com.mindolph.core.constant.GenAiConstants.OutputFormat;
+import java.util.function.Consumer;
 
 /**
  * @author mindolph.com@gmail.com
@@ -119,9 +118,6 @@ public class DummyLlmProvider implements LlmProvider {
                     generated = generated + "\n\t\tI can do more.";
                 case PLANTUML:
                     generated = generated + "I can do more.";
-                default:
-                    generated = generated + "\nUnknown format.";
-                    break;
             }
         }
         return new StreamToken(generated, 999, true, false);
